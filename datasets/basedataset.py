@@ -43,6 +43,14 @@ class Dataset(data.Dataset):
                     self.mask_path.append(os.path.join(data_path,  'mask_30_60', line + '.png'))
                     if self.mode == 'val':
                         self.box_gt.append(box_gt_Info[int(line)])
+            elif "CityPark" in data_path:
+                for line in lines:
+                    line=line.strip()
+                    self.img_path.append(os.path.join(data_path,  'images', line.replace('img', '').zfill(8)))
+                    # self.json_path.append(os.path.join(root, self.mode, 'jsons', splited[0] + '.json'))
+                    self.mask_path.append(os.path.join(data_path,  'mask', line.replace('img', '').zfill(8)))
+                    if self.mode == 'val':
+                        self.box_gt.append(box_gt_Info[int(line.replace('img', '').replace('.png', ''))])
             else:
                 for line in lines:
                     line=line.strip()
@@ -102,7 +110,6 @@ class Dataset(data.Dataset):
     def read_image_and_gt(self,index):
 
         img_path = self.img_path[index]
-        # print(img_path)
 
         mask_path = self.mask_path[index]
 
@@ -119,7 +126,7 @@ class Dataset(data.Dataset):
             for line in f.readlines():
                 line = line.strip().split(' ')
 
-                line_data = [int(i) for i in line]
+                line_data = [int(i.replace('img', '').replace('.png', '')) for i in line]
                 idx, num = [line_data[0], line_data[1]]
                 points_r = []
                 if num > 0:

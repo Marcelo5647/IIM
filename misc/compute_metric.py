@@ -15,7 +15,7 @@ def compute_metrics(dist_matrix,match_matrix,pred_num,gt_num,sigma,level):
     tp_pred_index = np.array(np.where(assign.sum(1)==1))[0]
     tp_gt_index = np.array(np.where(assign.sum(0)==1))[0]
     fp_pred_index = np.array(np.where(assign.sum(1)==0))[0]
-    level_list = level[tp_gt_index]
+    # level_list = level[tp_gt_index]
 
     tp = tp_pred_index.shape[0]
     fp = fp_pred_index.shape[0]
@@ -65,14 +65,25 @@ def eval_metrics(num_classes, pred_data, gt_data_T):
             fn_c_l[i_class] = (level[fn_gt_index]==i_class).sum()
 
     if gt_data['num'] !=0 and pred_data['num'] !=0:
-        pred_p =  pred_data['points']
-        gt_p = gt_data['points']
-        sigma_s = gt_data['sigma'][:,0]
-        sigma_l = gt_data['sigma'][:,1]
-        level = gt_data['level']
+
+        pred_p = np.array(pred_data['points'], ndmin=2)
+        
+        gt_p = np.array(gt_data['points'], ndmin=2)
+        
+        if np.array(gt_data['sigma']).ndim == 2:
+            sigma_s = gt_data['sigma'][:,0]
+            sigma_l = gt_data['sigma'][:,1]
+        elif np.array(gt_data['sigma']).ndim == 1:
+            sigma_s = [gt_data['sigma'][0]]
+            sigma_l = [gt_data['sigma'][1]]
+        else:
+            raise Exception
+        
+        level = np.array(gt_data['level'], ndmin=1)
 
         # dist
         dist_matrix = ss.distance_matrix(pred_p,gt_p,p=2)
+        
         match_matrix = np.zeros(dist_matrix.shape,dtype=bool)
 
         # sigma_s and sigma_l

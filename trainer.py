@@ -55,7 +55,7 @@ class Trainer():
 
 
     def forward(self):
-        # self.validate()
+        self.validate()
         for epoch in range(self.epoch,cfg.MAX_EPOCH):
             self.epoch = epoch
             # training    
