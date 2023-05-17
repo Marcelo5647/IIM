@@ -34,7 +34,10 @@ def compute_metrics(dist_matrix,match_matrix,pred_num,gt_num,sigma,level):
 
 def eval_metrics(num_classes, pred_data, gt_data_T):
     # print(gt_data_T)
-    if gt_data_T['num']>0:
+    if gt_data_T['num'] == 1:
+        gt_data = {'num':gt_data_T['num'].numpy(), 'points':gt_data_T['points'].numpy(),\
+                   'sigma':gt_data_T['sigma'].numpy().squeeze(), 'level':gt_data_T['level'].numpy()}
+    elif gt_data_T['num'] > 1:
         gt_data = {'num':gt_data_T['num'].numpy().squeeze(), 'points':gt_data_T['points'].numpy().squeeze(),\
                    'sigma':gt_data_T['sigma'].numpy().squeeze(), 'level':gt_data_T['level'].numpy().squeeze()}
     else:
@@ -66,9 +69,9 @@ def eval_metrics(num_classes, pred_data, gt_data_T):
 
     if gt_data['num'] !=0 and pred_data['num'] !=0:
 
-        pred_p = np.array(pred_data['points'], ndmin=2)
+        pred_p = np.array(pred_data['points'].squeeze(), ndmin=2)
         
-        gt_p = np.array(gt_data['points'], ndmin=2)
+        gt_p = np.array(gt_data['points'].squeeze(), ndmin=2)
         
         if np.array(gt_data['sigma']).ndim == 2:
             sigma_s = gt_data['sigma'][:,0]
@@ -77,12 +80,19 @@ def eval_metrics(num_classes, pred_data, gt_data_T):
             sigma_s = [gt_data['sigma'][0]]
             sigma_l = [gt_data['sigma'][1]]
         else:
+            print(gt_data['sigma'])
             raise Exception
         
         level = np.array(gt_data['level'], ndmin=1)
 
         # dist
-        dist_matrix = ss.distance_matrix(pred_p,gt_p,p=2)
+        try:
+            dist_matrix = ss.distance_matrix(pred_p,gt_p,p=2)
+        except Exception as e:
+            print(e)
+            print(pred_p)
+            print(gt_p)
+            raise Exception
         
         match_matrix = np.zeros(dist_matrix.shape,dtype=bool)
 
